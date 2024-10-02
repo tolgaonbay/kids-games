@@ -23,7 +23,7 @@
         }
         #question {
             font-size: 2em;
-            margin-top: 50px;
+            margin-top: 10px;
         }
         input {
             font-size: 1.5em;
@@ -129,6 +129,9 @@
     <br>
     <button onclick="checkAnswer()">Cevapla</button>
 
+    <!-- Ana sayfaya dönme butonu -->
+    <button onclick="returnToSetup()">Ana Sayfa</button>
+
     <div id="streak"></div>
     <!-- <div id="highscore"></div> -->
 
@@ -155,9 +158,6 @@
             <button class="key" onclick="removeLastDigit()">&lt;</button>
         </div>
     </div>
-
-    <!-- Ana sayfaya dönme butonu -->
-    <button onclick="returnToSetup()">Ana Sayfaya Dön</button>
 </div>
 
 <!-- Havai fişek animasyonu -->
@@ -175,7 +175,7 @@
     let previousAnswer = null;
 
     // Sayfa yüklendiğinde başlangıç ekranında rekoru göster
-    document.getElementById('initialHighscore').innerText = `Mevcut Rekor: ${highscore}`;
+    document.getElementById('initialHighscore').innerText = `Rekor: ${highscore}`;
 
     function toggleNumber(num) {
         const button = document.querySelector(`button[onclick='toggleNumber(${num})']`);
@@ -241,16 +241,15 @@
                 highscore = streak;
                 localStorage.setItem('highscore', highscore);
                 showFireworks();
+                document.getElementById('initialHighscore').innerText = `Rekor: ${highscore}`;
             }
-
-            document.getElementById('streak').innerText = `Puan: ${streak} | Rekor: ${highscore}`;
 
             generateQuestion();
         } else {
             alert('Yanlış cevap! Tekrar dene.');
             streak = 0;
-            document.getElementById('streak').innerText = `Arka arkaya bildiğin: 0`;
         }
+        document.getElementById('streak').innerText = `Puan: ${streak} | Rekor: ${highscore}`;
         document.getElementById('answer').value = '';
     }
 
@@ -258,7 +257,7 @@
     function resetHighscore() {
         highscore = 0;
         localStorage.setItem('highscore', highscore);
-        document.getElementById('initialHighscore').innerText = `Mevcut Rekor: ${highscore}`;
+        document.getElementById('initialHighscore').innerText = `Rekor: ${highscore}`;
     }
 
     // Havai fişek animasyonu
