@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Çarpım Oyunu</title>
+    <style>
+        body {
+            text-align: center;
+            background-color: #f0f8ff;
+            font-family: 'Comic Sans MS', sans-serif;
+            overflow: hidden;
+        }
+        #question {
+            font-size: 2em;
+            margin-top: 50px;
+        }
+        input {
+            font-size: 1.5em;
+            padding: 10px;
+            margin-top: 20px;
+        }
+        button {
+            font-size: 1.5em;
+            padding: 10px 20px;
+            margin-top: 20px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #45a049;
+        }
+        #streak, #highscore {
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+        .toggle-button {
+            padding: 10px 20px;
+            margin: 10px;
+            font-size: 1.5em;
+            background-color: #ddd;
+            border: 2px solid #888;
+            cursor: pointer;
+        }
+        .selected {
+            background-color: #4CAF50;
+            color: white;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+
+    <!-- jsDelivr  -->
+    <script src="https://cdn.jsdelivr.net/npm/fireworks-js@2.x/dist/index.umd.js"></script>
+
+    <!-- UNPKG -->
+    <script src="https://unpkg.com/fireworks-js@2.x/dist/index.umd.js"></script>
+</head>
+<body>
+
+<h1>Çarpım Tablosu Oyunu</h1>
+
+<!-- Oyun başlama ekranı -->
+<div id="setup">
+    <p>Hangi sayılarla pratik yapmak istersin?</p>
+    <div id="numberButtons">
+        <button class="toggle-button" onclick="toggleNumber(1)">1</button>
+        <button class="toggle-button" onclick="toggleNumber(2)">2</button>
+        <button class="toggle-button" onclick="toggleNumber(3)">3</button>
+        <button class="toggle-button" onclick="toggleNumber(4)">4</button>
+        <button class="toggle-button" onclick="toggleNumber(5)">5</button>
+        <button class="toggle-button" onclick="toggleNumber(6)">6</button>
+        <button class="toggle-button" onclick="toggleNumber(7)">7</button>
+        <button class="toggle-button" onclick="toggleNumber(8)">8</button>
+        <button class="toggle-button" onclick="toggleNumber(9)">9</button>
+    </div>
+    <br>
+    <!-- Rekoru göster -->
+    <div id="initialHighscore"></div>
+    <button onclick="startGame()">Oyuna Başla</button>
+    <br>
+    <button onclick="resetHighscore()">Rekoru Sıfırla</button>
+</div>
+
+<!-- Oyun ekranı -->
+<div id="game" class="hidden">
+    <div id="question"></div>
+    <input type="number" id="answer" placeholder="Cevap" />
+    <br>
+    <button onclick="checkAnswer()">Cevapla</button>
+
+    <div id="streak"></div>
+    <div id="highscore"></div>
+</div>
+
+<!-- Havai fişek animasyonu -->
+<!-- <div id="fireworks" class="fireworks"></div> -->
+<div id="fireworks" class="fireworks"></div>
+
+<script>
+    const container = document.querySelector('.fireworks')
+    const fireworks = new Fireworks.default(container)
+
+    let streak = 0;
+    let highscore = localStorage.getItem('highscore') || 0;
+    let selectedNumbers = [];
+    let currentNum;
+    let currentMultiplier;
+    let previousAnswer = null;
+
+    // Sayfa yüklendiğinde başlangıç ekranında rekoru göster
+    document.getElementById('initialHighscore').innerText = `Mevcut Rekor: ${highscore}`;
+
+    function toggleNumber(num) {
+        const button = document.querySelector(`button[onclick='toggleNumber(${num})']`);
+        if (selectedNumbers.includes(num)) {
+            selectedNumbers = selectedNumbers.filter(n => n !== num); // Sayıyı çıkar
+            button.classList.remove('selected'); // Seçimi kaldır
+        } else {
+            selectedNumbers.push(num); // Sayıyı ekle
+            button.classList.add('selected'); // Seçimi vurgula
+        }
+    }
+
+    function startGame() {
+        if (selectedNumbers.length === 0) {
+            alert('Lütfen en az bir sayı seçin.');
+            return;
+        }
+
+        // Oyun ekranını göster, seçim ekranını gizle
+        document.getElementById('setup').classList.add('hidden');
+        document.getElementById('game').classList.remove('hidden');
+
+        document.getElementById('highscore').innerText = `Rekor: ${highscore}`;
+        generateQuestion();
+    }
+
+    function generateQuestion() {
+        let newAnswer;
+
+        // Aynı cevabın gelmemesini sağlamak için döngü
+        do {
+            currentNum = Math.floor(Math.random() * 10 + 1); // 1 ile 10 arasında bir sayı
+            currentMultiplier = selectedNumbers[Math.floor(Math.random() * selectedNumbers.length)]; // Seçilen sayılardan birini al
+            newAnswer = currentNum * currentMultiplier;
+        } while (newAnswer === previousAnswer);
+
+        previousAnswer = newAnswer;
+
+        // Çarpanların rastgele yer değiştirmesi
+        if (Math.random() < 0.5) {
+            document.getElementById('question').innerText = `${currentMultiplier} x ${currentNum} = ?`;
+        } else {
+            document.getElementById('question').innerText = `${currentNum} x ${currentMultiplier} = ?`;
+        }
+    }
+
+    function checkAnswer() {
+        const answer = document.getElementById('answer').value;
+
+        // Eğer cevap boşsa uyarı göster
+        if (answer === '') {
+            alert('Lütfen bir cevap girin.');
+            return; // Fonksiyonu sonlandır
+        }
+
+        const correctAnswer = currentNum * currentMultiplier;
+
+        if (answer == correctAnswer) {
+            streak++;
+            generateQuestion();
+            document.getElementById('streak').innerText = `Arka arkaya bildiğin: ${streak}`;
+
+            // Havai fişek animasyonu göster
+            if (streak > highscore) {
+                highscore = streak;
+                localStorage.setItem('highscore', highscore);
+                document.getElementById('highscore').innerText = `Rekor: ${highscore}`;
+                showFireworks();
+                console.log('fireworks');
+            }
+        } else {
+            alert('Yanlış cevap! Tekrar dene.');
+            streak = 0;
+            document.getElementById('streak').innerText = `Arka arkaya bildiğin: 0`;
+        }
+        document.getElementById('answer').value = '';
+    }
+
+    // Rekoru sıfırlama fonksiyonu
+    function resetHighscore() {
+        highscore = 0;
+        localStorage.setItem('highscore', highscore);
+        document.getElementById('initialHighscore').innerText = `Mevcut Rekor: ${highscore}`;
+    }
+
+    // Havai fişek animasyonu
+    function showFireworks() {
+        fireworks.launch(5);
+
+        setTimeout(() => {
+            fireworks.clear();
+        }, 1000);
+    }
+
+    function getRandomColor() {
+        const letters = '0123456789ABCDEF';
+        let color = '#';
+        for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
+</script>
+</body>
+</html>
