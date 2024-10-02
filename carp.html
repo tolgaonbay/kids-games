@@ -103,6 +103,26 @@
         .key:hover {
             background-color: #45a049;
         }
+
+        .result-container {
+            display: flex;
+            justify-content: center;
+            /* width: 80%; */
+            /* max-width: 800px; */
+        }
+        .result-item {
+            text-align: center;
+            flex: 1;
+        }
+        .result-item h3 {
+            font-size: 12px;
+            margin-bottom: 10px;
+        }
+        .result-item p {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 0;
+        }
     </style>
 
     <!-- jsDelivr  -->
@@ -114,11 +134,11 @@
 <body>
 
 <div id="scene">
-    <h1>Çarpım Tablosu Oyunu</h1>
+    <h1>Çarpma Oyunu</h1>
 
     <!-- Oyun başlama ekranı -->
     <div id="setup">
-        <p>Hangi sayılarla pratik yapmak istersin?</p>
+        <p>Hangi sayılarla alıştırma yapmak istersin?</p>
         <div id="numberButtons">
             <button class="toggle-button" onclick="toggleNumber(1)">1</button>
             <button class="toggle-button" onclick="toggleNumber(2)">2</button>
@@ -132,10 +152,32 @@
         </div>
         <br>
         <!-- Rekoru göster -->
-        <div id="initialHighscore"></div>
+        <!-- <div id="initialHighscore"></div> -->
+
+        <div class="result-container">
+            <div class="result-item">
+                <h3>Doğru</h3>
+                <p class="streak-item" style="color:rgb(43, 169, 8)">12</p>
+            </div>
+            <div class="result-item">
+                <h3>Rekor</h3>
+                <p class="highscore-item">20</p>
+            </div>
+            <div class="result-item">
+                <h3>Toplam</h3>
+                <p class="total-item">5</p>
+            </div>
+            <div class="result-item">
+                <h3>Yanlış</h3>
+                <p class="wrong-item" style="color: rgb(213, 12, 12)">5</p>
+            </div>
+        </div>
+
         <button onclick="startGame()">Oyuna Başla</button>
         <br>
-        <button onclick="resetHighscore()">Rekoru Sıfırla</button>
+        <button onclick="resetScores()">Sıfırla</button>
+
+
     </div>
 
     <!-- Oyun ekranı -->
@@ -148,8 +190,25 @@
         <!-- Ana sayfaya dönme butonu -->
         <button onclick="returnToSetup()">Ana Sayfa</button>
 
-        <div id="streak"></div>
-        <!-- <div id="highscore"></div> -->
+        <!-- Skor Tablosu -->
+        <div class="result-container">
+            <div class="result-item">
+                <h3>Doğru</h3>
+                <p class="streak-item">12</p>
+            </div>
+            <div class="result-item">
+                <h3>Rekor</h3>
+                <p class="highscore-item">20</p>
+            </div>
+            <div class="result-item">
+                <h3>Toplam</h3>
+                <p class="total-item">5</p>
+            </div>
+            <div class="result-item">
+                <h3>Yanlış</h3>
+                <p class="wrong-item">5</p>
+            </div>
+        </div>
 
         <!-- Sanal Klavye -->
         <div id="virtualKeyboard">
@@ -186,19 +245,33 @@
         autoresize: true,
         boundaries: {
             width: document.clientWidth,
-            height: document    .clientHeight
+            height: document.clientHeight
+        },
+        sound: {
+            enabled: true,
+            files: [
+                'https://fireworks.js.org/sounds/explosion0.mp3',
+                'https://fireworks.js.org/sounds/explosion1.mp3',
+                'https://fireworks.js.org/sounds/explosion2.mp3',
+            ],
+            volume: {
+                min: 2,
+                max: 4
+            }
         }
     });
     
-    let streak = 0;
+    let streak = localStorage.getItem('streak') || 0;
     let highscore = localStorage.getItem('highscore') || 0;
+    let wrong = localStorage.getItem('wrong') || 0;
+    let total = localStorage.getItem('total') || 0;
     let selectedNumbers = [];
     let currentNum;
     let currentMultiplier;
     let previousAnswer = null;
 
     // Sayfa yüklendiğinde başlangıç ekranında rekoru göster
-    document.getElementById('initialHighscore').innerText = `Rekor: ${highscore}`;
+    updateScores();
 
     function toggleNumber(num) {
         const button = document.querySelector(`button[onclick='toggleNumber(${num})']`);
@@ -221,7 +294,7 @@
         document.getElementById('setup').classList.add('hidden');
         document.getElementById('game').classList.remove('hidden');
 
-        document.getElementById('streak').innerText = `Rekor: ${highscore}`;
+        updateScores();
         generateQuestion();
     }
 
@@ -256,37 +329,70 @@
 
         const correctAnswer = currentNum * currentMultiplier;
 
+        total++;
+
         if (answer == correctAnswer) {
             streak++;
 
-            console.log(streak + ' ' + highscore);
+            playSound('correct');
+
             // Havai fişek animasyonu göster
             if (streak > highscore) {
                 highscore = streak;
-                localStorage.setItem('highscore', highscore);
                 showFireworks();
-                document.getElementById('initialHighscore').innerText = `Rekor: ${highscore}`;
             }
 
             generateQuestion();
         } else {
-            alert('Yanlış cevap! Tekrar dene.');
+            playSound('wrong');
+            wrong++;
             streak = 0;
         }
-        document.getElementById('streak').innerText = `Puan: ${streak} | Rekor: ${highscore}`;
+        updateScores();
+
         document.getElementById('answer').value = '';
     }
 
+    function playSound(result) {
+        const file = result === 'correct' ? 'https://cdn.pixabay.com/download/audio/2021/08/04/audio_bb630cc098.mp3' : 'https://cdn.pixabay.com/download/audio/2024/04/02/audio_da13bb6e33.mp3';
+        
+        var audio = new Audio(file);
+
+        audio.play();
+    }
+
     // Rekoru sıfırlama fonksiyonu
-    function resetHighscore() {
+    function resetScores() {
+        streak = 0;
         highscore = 0;
+        total = 0;
+        wrong = 0;
+        updateScores();
+    }
+
+    function updateScores() {
+        localStorage.setItem('streak', streak);
         localStorage.setItem('highscore', highscore);
-        document.getElementById('initialHighscore').innerText = `Rekor: ${highscore}`;
+        localStorage.setItem('total', total);
+        localStorage.setItem('wrong', wrong);
+
+        updateItem('streak-item', streak);
+        updateItem('highscore-item', highscore);
+        updateItem('wrong-item', wrong);
+        updateItem('total-item', total);
+    }
+
+    function updateItem(name, value) {
+        const items = document.getElementsByClassName(name);
+
+        for (let i = 0; i < items.length; i++) {
+            items[i].innerText = value;
+        }
     }
 
     // Havai fişek animasyonu
     function showFireworks() {
-        fireworks.launch(5);
+        fireworks.launch(10);
     }
 
     function addDigit(digit) {
@@ -304,8 +410,6 @@
         // Oyun ekranını gizle, seçim ekranını göster
         document.getElementById('setup').classList.remove('hidden');
         document.getElementById('game').classList.add('hidden');
-        streak = 0; // Streak sıfırlanıyor
-        document.getElementById('streak').innerText = '';
     }
 </script>
 </body>
