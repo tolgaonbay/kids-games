@@ -240,7 +240,7 @@
 <div id="fireworks" class="fireworks"></div>
 
 <script>
-    const container = document.querySelector('.fireworks')
+    const container = document.querySelector('#fireworks')
     const fireworks = new Fireworks.default(container, {
         autoresize: true,
         boundaries: {
@@ -339,6 +339,7 @@
             // Havai fişek animasyonu göster
             if (streak > highscore) {
                 highscore = streak;
+                console.log('fireworks');
                 showFireworks();
             }
 
@@ -355,8 +356,11 @@
 
     function playSound(result) {
         const file = result === 'correct' ? 'https://cdn.pixabay.com/download/audio/2021/08/04/audio_bb630cc098.mp3' : 'https://cdn.pixabay.com/download/audio/2024/04/02/audio_da13bb6e33.mp3';
+        const volume = result === 'correct' ? 0.4 : 0.05;
         
         var audio = new Audio(file);
+        
+        audio.volume = volume;
 
         audio.play();
     }
@@ -392,6 +396,7 @@
 
     // Havai fişek animasyonu
     function showFireworks() {
+        fireworks.clear();
         fireworks.launch(10);
     }
 
