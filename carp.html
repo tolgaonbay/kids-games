@@ -61,6 +61,33 @@
         .hidden {
             display: none;
         }
+
+        /* Sanal klavye stili */
+        #virtualKeyboard {
+            display: flex;
+            flex-direction: column; /* Butonları dikey yerleştir */
+            align-items: center; /* Ortala */
+            margin-top: 20px;
+        }
+        .key-row {
+            display: flex; /* Satırları flex container yap */
+            justify-content: center; /* Ortala */
+            margin-bottom: 2px; /* Satırlar arası boşluk */
+        }
+        .key {
+            width: 50px;
+            height: 50px;
+            font-size: 1.5em;
+            margin: 2px;
+            background-color: #4CAF50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .key:hover {
+            background-color: #45a049;
+        }
     </style>
 
     <!-- jsDelivr  -->
@@ -98,26 +125,47 @@
 <!-- Oyun ekranı -->
 <div id="game" class="hidden">
     <div id="question"></div>
-    <input type="number" id="answer" placeholder="Cevap" />
+    <input type="number" id="answer" placeholder="Cevap" readonly />
     <br>
     <button onclick="checkAnswer()">Cevapla</button>
 
     <div id="streak"></div>
-    <div id="highscore"></div>
+    <!-- <div id="highscore"></div> -->
 
-    <br>
+     <!-- Sanal Klavye -->
+     <div id="virtualKeyboard">
+        <div class="key-row">
+            <button class="key" onclick="addDigit(1)">1</button>
+            <button class="key" onclick="addDigit(2)">2</button>
+            <button class="key" onclick="addDigit(3)">3</button>
+        </div>
+        <div class="key-row">
+            <button class="key" onclick="addDigit(4)">4</button>
+            <button class="key" onclick="addDigit(5)">5</button>
+            <button class="key" onclick="addDigit(6)">6</button>
+        </div>
+        <div class="key-row">
+            <button class="key" onclick="addDigit(7)">7</button>
+            <button class="key" onclick="addDigit(8)">8</button>
+            <button class="key" onclick="addDigit(9)">9</button>
+        </div>
+        <div class="key-row">
+            <button class="key" onclick=""></button>
+            <button class="key" onclick="addDigit(0)">0</button>
+            <button class="key" onclick="removeLastDigit()">&lt;</button>
+        </div>
+    </div>
+
     <!-- Ana sayfaya dönme butonu -->
     <button onclick="returnToSetup()">Ana Sayfaya Dön</button>
 </div>
 
 <!-- Havai fişek animasyonu -->
-<!-- <div id="fireworks" class="fireworks"></div> -->
 <div id="fireworks" class="fireworks"></div>
 
 <script>
     const container = document.querySelector('.fireworks')
     const fireworks = new Fireworks.default(container)
-    // const fireworks = new Fireworks.default(document.body)
 
     let streak = 0;
     let highscore = localStorage.getItem('highscore') || 0;
@@ -150,9 +198,8 @@
         document.getElementById('setup').classList.add('hidden');
         document.getElementById('game').classList.remove('hidden');
 
-        document.getElementById('highscore').innerText = `Rekor: ${highscore}`;
+        document.getElementById('streak').innerText = `Rekor: ${highscore}`;
         generateQuestion();
-        document.getElementById('answer').focus(); // Input alanına odaklan
     }
 
     function generateQuestion() {
@@ -188,24 +235,23 @@
 
         if (answer == correctAnswer) {
             streak++;
-            generateQuestion();
-            document.getElementById('streak').innerText = `Arka arkaya bildiğin: ${streak}`;
 
             // Havai fişek animasyonu göster
             if (streak > highscore) {
                 highscore = streak;
                 localStorage.setItem('highscore', highscore);
-                document.getElementById('highscore').innerText = `Rekor: ${highscore}`;
                 showFireworks();
-                console.log('fireworks');
             }
+
+            document.getElementById('streak').innerText = `Puan: ${streak} | Rekor: ${highscore}`;
+
+            generateQuestion();
         } else {
             alert('Yanlış cevap! Tekrar dene.');
             streak = 0;
             document.getElementById('streak').innerText = `Arka arkaya bildiğin: 0`;
         }
         document.getElementById('answer').value = '';
-        document.getElementById('answer').focus(); // Input alanına odaklan
     }
 
     // Rekoru sıfırlama fonksiyonu
@@ -222,6 +268,16 @@
         setTimeout(() => {
             fireworks.clear();
         }, 1000);
+    }
+
+    function addDigit(digit) {
+        document.getElementById('answer').value += digit; // Girilen sayıya ekle
+    }
+
+    function removeLastDigit() {
+        let answer = document.getElementById('answer').value;
+
+        document.getElementById('answer').value = answer.substring(0, answer.length - 1);
     }
 
     // Ana sayfaya dönme fonksiyonu
