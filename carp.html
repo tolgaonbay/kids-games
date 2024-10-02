@@ -16,12 +16,24 @@
             flex-direction: column;
             height: 100vh; /* Full viewport height */
         }
+        #scene {
+            z-index: 1;
+            position: relative;
+        }
         #setup, #game {
             flex: 0 0 auto; /* Prevent these sections from growing */
         }
         #fireworks {
             flex: 1; /* Allow this section to grow and fill remaining height */
-            position: relative;
+            /* position: relative; */
+
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* background-color: #f0f0f0; */
+            z-index: 0;
         }
         #question {
             font-size: 2em;
@@ -40,9 +52,10 @@
             color: white;
             border: none;
             cursor: pointer;
+            /* -webkit-tap-highlight-color: white; */
         }
         button:hover {
-            background-color: #45a049;
+            /* background-color: #45a049; */
         }
         #streak, #highscore {
             font-size: 1.2em;
@@ -74,11 +87,11 @@
         .key-row {
             display: flex; /* Satırları flex container yap */
             justify-content: center; /* Ortala */
-            margin-bottom: 2px; /* Satırlar arası boşluk */
+            margin-bottom: 1px; /* Satırlar arası boşluk */
         }
         .key {
-            width: 50px;
-            height: 50px;
+            width: 70px;
+            height: 70px;
             font-size: 1.5em;
             margin: 2px;
             background-color: #4CAF50;
@@ -100,64 +113,66 @@
 </head>
 <body>
 
-<h1>Çarpım Tablosu Oyunu</h1>
+<div id="scene">
+    <h1>Çarpım Tablosu Oyunu</h1>
 
-<!-- Oyun başlama ekranı -->
-<div id="setup">
-    <p>Hangi sayılarla pratik yapmak istersin?</p>
-    <div id="numberButtons">
-        <button class="toggle-button" onclick="toggleNumber(1)">1</button>
-        <button class="toggle-button" onclick="toggleNumber(2)">2</button>
-        <button class="toggle-button" onclick="toggleNumber(3)">3</button>
-        <button class="toggle-button" onclick="toggleNumber(4)">4</button>
-        <button class="toggle-button" onclick="toggleNumber(5)">5</button>
-        <button class="toggle-button" onclick="toggleNumber(6)">6</button>
-        <button class="toggle-button" onclick="toggleNumber(7)">7</button>
-        <button class="toggle-button" onclick="toggleNumber(8)">8</button>
-        <button class="toggle-button" onclick="toggleNumber(9)">9</button>
+    <!-- Oyun başlama ekranı -->
+    <div id="setup">
+        <p>Hangi sayılarla pratik yapmak istersin?</p>
+        <div id="numberButtons">
+            <button class="toggle-button" onclick="toggleNumber(1)">1</button>
+            <button class="toggle-button" onclick="toggleNumber(2)">2</button>
+            <button class="toggle-button" onclick="toggleNumber(3)">3</button>
+            <button class="toggle-button" onclick="toggleNumber(4)">4</button>
+            <button class="toggle-button" onclick="toggleNumber(5)">5</button>
+            <button class="toggle-button" onclick="toggleNumber(6)">6</button>
+            <button class="toggle-button" onclick="toggleNumber(7)">7</button>
+            <button class="toggle-button" onclick="toggleNumber(8)">8</button>
+            <button class="toggle-button" onclick="toggleNumber(9)">9</button>
+        </div>
+        <br>
+        <!-- Rekoru göster -->
+        <div id="initialHighscore"></div>
+        <button onclick="startGame()">Oyuna Başla</button>
+        <br>
+        <button onclick="resetHighscore()">Rekoru Sıfırla</button>
     </div>
-    <br>
-    <!-- Rekoru göster -->
-    <div id="initialHighscore"></div>
-    <button onclick="startGame()">Oyuna Başla</button>
-    <br>
-    <button onclick="resetHighscore()">Rekoru Sıfırla</button>
-</div>
 
-<!-- Oyun ekranı -->
-<div id="game" class="hidden">
-    <div id="question"></div>
-    <input type="number" id="answer" placeholder="Cevap" readonly />
-    <br>
-    <button onclick="checkAnswer()">Cevapla</button>
+    <!-- Oyun ekranı -->
+    <div id="game" class="hidden">
+        <div id="question"></div>
+        <input type="number" id="answer" placeholder="Cevap" readonly />
+        <br>
+        <button onclick="checkAnswer()">Cevapla</button>
 
-    <!-- Ana sayfaya dönme butonu -->
-    <button onclick="returnToSetup()">Ana Sayfa</button>
+        <!-- Ana sayfaya dönme butonu -->
+        <button onclick="returnToSetup()">Ana Sayfa</button>
 
-    <div id="streak"></div>
-    <!-- <div id="highscore"></div> -->
+        <div id="streak"></div>
+        <!-- <div id="highscore"></div> -->
 
-     <!-- Sanal Klavye -->
-     <div id="virtualKeyboard">
-        <div class="key-row">
-            <button class="key" onclick="addDigit(1)">1</button>
-            <button class="key" onclick="addDigit(2)">2</button>
-            <button class="key" onclick="addDigit(3)">3</button>
-        </div>
-        <div class="key-row">
-            <button class="key" onclick="addDigit(4)">4</button>
-            <button class="key" onclick="addDigit(5)">5</button>
-            <button class="key" onclick="addDigit(6)">6</button>
-        </div>
-        <div class="key-row">
-            <button class="key" onclick="addDigit(7)">7</button>
-            <button class="key" onclick="addDigit(8)">8</button>
-            <button class="key" onclick="addDigit(9)">9</button>
-        </div>
-        <div class="key-row">
-            <button class="key" onclick=""></button>
-            <button class="key" onclick="addDigit(0)">0</button>
-            <button class="key" onclick="removeLastDigit()">&lt;</button>
+        <!-- Sanal Klavye -->
+        <div id="virtualKeyboard">
+            <div class="key-row">
+                <button class="key" onclick="addDigit(1)">1</button>
+                <button class="key" onclick="addDigit(2)">2</button>
+                <button class="key" onclick="addDigit(3)">3</button>
+            </div>
+            <div class="key-row">
+                <button class="key" onclick="addDigit(4)">4</button>
+                <button class="key" onclick="addDigit(5)">5</button>
+                <button class="key" onclick="addDigit(6)">6</button>
+            </div>
+            <div class="key-row">
+                <button class="key" onclick="addDigit(7)">7</button>
+                <button class="key" onclick="addDigit(8)">8</button>
+                <button class="key" onclick="addDigit(9)">9</button>
+            </div>
+            <div class="key-row">
+                <button class="key" onclick=""></button>
+                <button class="key" onclick="addDigit(0)">0</button>
+                <button class="key" onclick="removeLastDigit()">&lt;</button>
+            </div>
         </div>
     </div>
 </div>
@@ -167,8 +182,14 @@
 
 <script>
     const container = document.querySelector('.fireworks')
-    const fireworks = new Fireworks.default(container)
-
+    const fireworks = new Fireworks.default(container, {
+        autoresize: true,
+        boundaries: {
+            width: document.clientWidth,
+            height: document    .clientHeight
+        }
+    });
+    
     let streak = 0;
     let highscore = localStorage.getItem('highscore') || 0;
     let selectedNumbers = [];
@@ -238,6 +259,7 @@
         if (answer == correctAnswer) {
             streak++;
 
+            console.log(streak + ' ' + highscore);
             // Havai fişek animasyonu göster
             if (streak > highscore) {
                 highscore = streak;
@@ -265,10 +287,6 @@
     // Havai fişek animasyonu
     function showFireworks() {
         fireworks.launch(5);
-
-        setTimeout(() => {
-            fireworks.clear();
-        }, 1000);
     }
 
     function addDigit(digit) {
