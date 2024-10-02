@@ -10,6 +10,16 @@
             background-color: #f0f8ff;
             font-family: 'Comic Sans MS', sans-serif;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            height: 100vh; /* Full viewport height */
+        }
+        #setup, #game {
+            flex: 0 0 auto; /* Prevent these sections from growing */
+        }
+        #fireworks {
+            flex: 1; /* Allow this section to grow and fill remaining height */
+            position: relative;
         }
         #question {
             font-size: 2em;
@@ -107,6 +117,7 @@
 <script>
     const container = document.querySelector('.fireworks')
     const fireworks = new Fireworks.default(container)
+    // const fireworks = new Fireworks.default(document.body)
 
     let streak = 0;
     let highscore = localStorage.getItem('highscore') || 0;
@@ -141,6 +152,7 @@
 
         document.getElementById('highscore').innerText = `Rekor: ${highscore}`;
         generateQuestion();
+        document.getElementById('answer').focus(); // Input alanına odaklan
     }
 
     function generateQuestion() {
@@ -193,6 +205,7 @@
             document.getElementById('streak').innerText = `Arka arkaya bildiğin: 0`;
         }
         document.getElementById('answer').value = '';
+        document.getElementById('answer').focus(); // Input alanına odaklan
     }
 
     // Rekoru sıfırlama fonksiyonu
@@ -210,7 +223,7 @@
             fireworks.clear();
         }, 1000);
     }
-    
+
     // Ana sayfaya dönme fonksiyonu
     function returnToSetup() {
         // Oyun ekranını gizle, seçim ekranını göster
